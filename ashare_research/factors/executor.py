@@ -51,14 +51,15 @@ class FormulaExecutor:
         if not valid:
             return self._empty(formula_hash, formula_text, total_rows, reason)
 
-        required = {"trade_date", "ts_code", *BASE_FEATURES}
+        feature_dependencies = {token for token in expression.tokens if token in BASE_FEATURES}
+        required = {"trade_date", "ts_code", *feature_dependencies}
         missing = required - set(features.columns)
         if missing:
             return self._empty(formula_hash, formula_text, total_rows, f"missing_columns:{sorted(missing)}")
 
         frame = features.sort_values(["ts_code", "trade_date"], kind="mergesort").copy()
         index = pd.MultiIndex.from_frame(frame[["ts_code", "trade_date"]])
-        env = {name: pd.Series(frame[name].astype(float).to_numpy(), index=index, name=name) for name in BASE_FEATURES}
+        env = {name: pd.Series(frame[name].astype(float).to_numpy(), index=index, name=name) for name in feature_dependencies}
 
         try:
             pos, values = self._eval_at(expression.tokens, 0, env)
@@ -108,4 +109,3 @@ class FormulaExecutor:
     @staticmethod
     def _empty(formula_hash: str, formula_text: str, total_rows: int, reason: str | None) -> ExecutionResult:
         return ExecutionResult(formula_hash, formula_text, False, reason, None, total_rows, 0, total_rows, 0, 0, float("nan"))
-
