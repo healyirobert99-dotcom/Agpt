@@ -1,0 +1,90 @@
+run:
+  name: factor_research_v2_formal_first_run
+  test_only: false
+  large_scale_search_started: false
+
+data:
+  sqlite_path: stock-data/ashare_research.sqlite3
+  raw_sqlite_path: stock-data/a_stock_selector.sqlite3
+  research_start: "20190704"
+  research_end: "20260626"
+  max_allowed_research_end: "20260626"
+  split:
+    development: ["20190704", "20221230"]
+    selection: ["20230103", "20241231"]
+    stability: ["20250102", "20260626"]
+
+universe:
+  type: csi800_asof
+
+features:
+  allowed: [RET1, RET5, VOL_RATIO20, VOLUME_WEIGHTED_RET, TREND60]
+
+operators:
+  allowed: [ADD, SUB, MUL, DIV, NEG, ABS, SIGN, DELTA5, DECAY_LINEAR20, ZSCORE20]
+
+formula_limits:
+  max_prefix_tokens: 8
+  max_tree_depth: 2
+  division_safety: required
+  canonicalization: required
+
+generation:
+  seed: 20260627
+  candidate_count: 10000
+  modes: [random, mutation, enumeration]
+
+workers:
+  max_workers: 1
+  batch_size: 200
+  checkpoint_every_n: 50
+  failed_task_retry_limit: 0
+  max_memory_gb: 8
+
+fast_screen:
+  forward_return_horizon: 5
+  thresholds:
+    min_valid_rows: 20
+    min_coverage: 0.30
+    min_abs_rank_ic_mean: 0.001
+    min_cross_sectional_dispersion: 0.000001
+
+correlation:
+  output_correlation_threshold: 0.95
+  max_correlation_rows: 2000
+  correlation_input_limit: 500
+
+full_backtest:
+  limit: 50
+  save_detail_policy: summary_only
+
+backtest:
+  rebalance_frequency: 5
+  top_n: 20
+  initial_cash: 1000000
+  one_way_cost_bps: 20
+  unknown_tradability_policy: block
+
+portfolio:
+  construction: top_n_long_only_equal_weight
+  holding_period: fixed_rebalance_frequency
+
+robustness:
+  required_checks: [half_year_segment, rolling_window, cost_sensitivity, holding_period_sensitivity]
+  optional_checks: [industry_group, size_group, market_environment]
+
+rating:
+  min_positive_period_ratio: 0.45
+  grade_a_min_abs_ic: 0.03
+  grade_a_max_drawdown: 0.35
+  grade_b_min_abs_ic: 0.015
+
+output:
+  runs_dir: D:/alphaGPT_runtime/runs
+  registry_dir: D:/alphaGPT_runtime/reports/factor_registry_v2
+
+checkpoint:
+  resume_from_checkpoint: true
+
+operator_instruction:
+  user_confirmation_required_for_medium_or_large_scale: true
