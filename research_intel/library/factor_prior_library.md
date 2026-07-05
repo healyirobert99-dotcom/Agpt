@@ -1,35 +1,27 @@
-# 初版优质因子先验库
+# Factor Prior Library
 
-生成时间：2026-07-05
+This summary is generated from structured JSONL records. Firecrawl verification confirms public source reachability only; it is not an AlphaGPT backtest result.
 
-本库只记录公开资料中反复出现、具有经济含义或操作价值的因子方向。所有记录均为后续 AlphaGPT 研究的种子先验，尚未经过 AlphaGPT 本地回测验证，不得用于交易。
+- total_records: 20
+- source_verified_by_firecrawl: 20
 
-## 汇总
-
-- JSONL 文件：`research_intel/library/factor_prior_library.jsonl`
-- 初版条数：20
-- 可直接由当前日线价量数据初步支持：动量、反转、低波动、下行波动、成交额流动性、量价配合、多频趋势。
-- 需要财务或行业数据进一步确认：估值、质量、成长、市值、行业中性。
-
-## 优先关注方向
-
-1. 量价配合 / 多窗口动量
-   - 当前本地数据支持较好。
-   - 适合把 AlphaGPT 第二批搜索范围从盲目公式生成收窄到“收益、成交、波动、窗口组合”。
-
-2. 低波动 / 下行波动
-   - 更偏操作层和风险层。
-   - 可帮助避免只追收益、忽视回撤的策略。
-
-3. 价值+质量
-   - 经济含义强，但依赖财务字段、公告日期和行业中性。
-   - 进入搜索前需要先做数据可用性核验。
-
-4. 流动性 / 成交额
-   - 不一定是 alpha，但对“能不能把利润带走”非常关键。
-
-## 明确限制
-
-- 公开资料中的回测结果只作为“来源声称”，不是 AlphaGPT 验证结果。
-- 本库没有任何买卖建议。
-- 本库没有改动 AlphaGPT 主程序、阈值或评级规则。
+- fp_value_pe_001: Low PE / Earnings Yield | support=partial | firecrawl=True
+- fp_value_pb_002: Low PB / Book-to-Market | support=partial | firecrawl=True
+- fp_dividend_yield_003: Dividend Yield | support=uncertain | firecrawl=True
+- fp_quality_roe_004: Return on Equity | support=partial | firecrawl=True
+- fp_quality_roa_005: Return on Assets | support=partial | firecrawl=True
+- fp_quality_cashflow_006: Operating Cash Flow Quality | support=partial | firecrawl=True
+- fp_growth_revenue_007: Revenue Growth | support=partial | firecrawl=True
+- fp_growth_earnings_008: Earnings Growth | support=partial | firecrawl=True
+- fp_momentum_mid_009: Medium-Term Momentum | support=yes | firecrawl=True
+- fp_reversal_short_010: Short-Term Reversal | support=yes | firecrawl=True
+- fp_low_vol_011: Low Volatility | support=yes | firecrawl=True
+- fp_downside_vol_012: Downside Volatility | support=yes | firecrawl=True
+- fp_turnover_013: Turnover | support=partial | firecrawl=True
+- fp_amount_liquidity_014: Amount Liquidity | support=yes | firecrawl=True
+- fp_size_015: Size | support=partial | firecrawl=True
+- fp_beta_016: Market Beta | support=partial | firecrawl=True
+- fp_industry_neutral_017: Industry Neutral Ranking | support=partial | firecrawl=True
+- fp_price_volume_interaction_018: Price-Volume Interaction | support=yes | firecrawl=True
+- fp_multi_frequency_trend_019: Multi-Frequency Trend | support=yes | firecrawl=True
+- fp_composite_value_quality_momentum_020: Value Quality Momentum Composite | support=partial | firecrawl=True

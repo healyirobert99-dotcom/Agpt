@@ -1,36 +1,27 @@
-# 初版交易操作策略库
+# Trading Strategy Library
 
-生成时间：2026-07-05
+This summary is generated from structured JSONL records. Firecrawl verification confirms public source reachability only; it is not trading advice.
 
-本库记录的是操作层设计：如何选、何时买、何时卖、如何调仓、如何控制风险和成本。它不是买卖建议库，也不是已经验证可交易的策略库。
+- total_records: 20
+- source_verified_by_firecrawl: 19
 
-## 汇总
-
-- JSONL 文件：`research_intel/library/trading_strategy_library.jsonl`
-- 初版条数：20
-- 主要类别：多因子选股、动量、反转、低波动、小市值、指数增强、ETF 轮动、风控择时、仓位控制、流程审计。
-
-## 操作层最值得优先研究的组件
-
-1. 流动性与容量门槛
-   - 很多纸面因子失败不是因为方向错，而是成交额、换手和冲击成本吞掉利润。
-
-2. 换手预算约束
-   - 调仓太勤会把小 alpha 消耗掉。
-   - 后续需要把“因子排序变化”与“交易成本”放在同一个决策里。
-
-3. 行业中性和风险暴露控制
-   - 避免把行业 beta 当成选股 alpha。
-
-4. 动量策略的市场状态识别
-   - 趋势延续和反转切换时，操作规则比单个因子更重要。
-
-5. 研究-回测-执行全链条审计
-   - 因子、组合、交易执行、成本、容量必须分层记录。
-
-## 明确限制
-
-- 本库不接入券商。
-- 本库不生成真实交易信号。
-- 本库不访问 forward data。
-- 本库不启动第二批 AlphaGPT 搜索或 Phase 2 回测。
+- ts_multifactor_rank_monthly_001: 多因子选股 | simulate_later=partial | firecrawl=True
+- ts_value_quality_combo_002: 多因子选股 | simulate_later=partial | firecrawl=True
+- ts_growth_quality_combo_003: 多因子选股 | simulate_later=partial | firecrawl=True
+- ts_momentum_liquidity_filter_004: 动量 | simulate_later=yes | firecrawl=True
+- ts_short_reversal_005: 反转 | simulate_later=yes | firecrawl=True
+- ts_low_vol_defensive_006: 低波动 | simulate_later=yes | firecrawl=True
+- ts_size_quality_gate_007: 小市值 | simulate_later=partial | firecrawl=True
+- ts_industry_neutral_index_enhance_008: 指数增强 | simulate_later=partial | firecrawl=True
+- ts_market_neutral_reference_009: 其他 | simulate_later=no | firecrawl=True
+- ts_risk_parity_factor_010: 风控择时 | simulate_later=partial | firecrawl=True
+- ts_macro_industry_topdown_011: 指数增强 | simulate_later=partial | firecrawl=True
+- ts_fundamental_technical_blend_012: 多因子选股 | simulate_later=partial | firecrawl=True
+- ts_etf_rotation_momentum_013: ETF轮动 | simulate_later=partial | firecrawl=True
+- ts_market_filter_exposure_014: 风控择时 | simulate_later=partial | firecrawl=True
+- ts_stop_loss_take_profit_015: 风控择时 | simulate_later=yes | firecrawl=False
+- ts_turnover_budget_016: 风控择时 | simulate_later=partial | firecrawl=True
+- ts_equal_weight_topn_017: 多因子选股 | simulate_later=yes | firecrawl=True
+- ts_liquidity_capacity_gate_018: 风控择时 | simulate_later=yes | firecrawl=True
+- ts_report_news_overlay_019: 风控择时 | simulate_later=no | firecrawl=True
+- ts_pipeline_audit_020: 其他 | simulate_later=partial | firecrawl=True
