@@ -1,0 +1,81 @@
+# second_round_minimal_search_run_draft.yaml
+# ================================================================
+# 第二轮最小搜索运行草案
+# 状态：待审批草案，尚未批准执行
+# 本文件只表达三阶段运行计划，不是已批准执行配置
+# ================================================================
+
+status: draft_not_approved
+
+run_enabled: false
+formula_generation_enabled: false
+backtest_enabled: false
+search_enabled: false
+
+forward_data_access_allowed: false
+external_data_allowed: false
+operator_extension_allowed: false
+
+threshold_change_allowed: false
+rating_rule_change_allowed: false
+
+allowed_seed_manifest: "research_intel/library/second_batch_seed_factor_manifest.jsonl"
+
+allowed_scope: ["seed_single_factor", "seed_pairwise_economic_combination", "same_family_narrow_derivation"]
+
+allowed_features:
+  original: ["RET1", "RET5", "VOL_RATIO20", "VOLUME_WEIGHTED_RET", "TREND60"]
+  second_batch_approved: ["RET20", "RET60", "RET120", "RET_STD20", "RET_STD60", "DOWNSIDE_RET_STD20", "DOWNSIDE_RET_STD60", "AMOUNT_MA20", "AMOUNT_MA60", "TREND20", "TREND120"]
+
+allowed_operators: ["ADD", "SUB", "MUL", "DIV", "NEG", "ABS", "SIGN", "DELTA5", "DECAY_LINEAR20", "ZSCORE20"]
+
+locked_thresholds:
+  screening:
+    min_valid_rows: 20
+    min_coverage: 0.30
+    min_abs_rank_ic_mean: 0.001
+    min_cross_sectional_dispersion: 0.000001
+  correlation:
+    output_correlation_threshold: 0.95
+    max_correlation_rows: 2000
+  rating:
+    min_positive_period_ratio: 0.45
+    grade_a_min_abs_ic: 0.03
+    grade_a_max_drawdown: 0.35
+    grade_b_min_abs_ic: 0.015
+  time_split:
+    research_end: "20260626"
+  forward_data_cutoff: "20260626"
+  robustness:
+    required_checks: ["half_year_segment", "rolling_window", "cost_sensitivity", "holding_period_sensitivity"]
+
+operation_strategy_reference: "research_intel/library/operation_strategy_reference_manifest.jsonl"
+
+# ================================================================
+# 三阶段运行计划（待审批，不可执行，仅作设计草案记录）
+# 详细说明参见 research_intel/reports/second_round_minimal_search_run_plan.md
+# ================================================================
+#
+# 阶段 A: 种子因子单因子检查 (最多 7 个候选)
+#   对 7 个已冻结种子因子逐一做单因子可计算性和基础表现检查。
+#   直接可用: fp_reversal_short_010 (短期反转), fp_price_volume_interaction_018 (量价配合)
+#   需特征审批: 其余 5 个因子 (009, 011, 012, 014, 019)
+#   规则: 不做组合、不做随机扩展、允许 0 个候选
+#
+# 阶段 B: 库内有经济含义组合 (最多 5 个候选)
+#   B1 动量+低波动: fp_momentum_mid_009 + fp_low_vol_011 (动量方向+质量过滤)
+#   B2 反转+量价配合: fp_reversal_short_010 + fp_price_volume_interaction_018 (超跌+量确认)
+#   B3 趋势+流动性: fp_multi_frequency_trend_019 + fp_amount_liquidity_014 (趋势+容量)
+#   B4 多周期趋势: fp_momentum_mid_009 + fp_multi_frequency_trend_019 (中期+多频共振)
+#   B5 下行波动约束: fp_downside_vol_012 + fp_low_vol_011 (下行风险过滤)
+#   规则: 每对一个候选、不做3因子组合、不做任意堆叠、允许 0 个候选
+#
+# 阶段 C: 同源窄派生组合 (最多 10 个候选)
+#   C1 收益窗口族: [RET1, RET5, RET20, RET60, RET120] -> 差分/加权 (最多2个)
+#   C2 波动率族: [RET_STD20, RET_STD60, DOWNSIDE_RET_STD20, DOWNSIDE_RET_STD60] -> 比率/差分 (最多2个)
+#   C3 趋势族: [TREND20, TREND60, TREND120] -> 共振/差分 (最多2个)
+#   C4 量价交互族: [VOLUME_WEIGHTED_RET, VOL_RATIO20, RET1, RET5] -> 方向确认 (最多2个)
+#   C5 流动性容量族: [AMOUNT_MA20, AMOUNT_MA60, VOL_RATIO20] -> 变化率 (最多2个)
+#   规则: 同族派生、不新增算子、不引入库外因子、允许 0 个候选
+#
+# 整体: 最多 22 个候选 (7+5+10)，允许结果为空
