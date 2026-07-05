@@ -1,0 +1,1 @@
+{"canonical_formula": "NEG(RET_STD20)", "complexity": 2, "feature_dependencies": ["RET_STD20"], "formula_hash": "c7b18f64bbc124334466e9e274c21f199943d418b300bdd13919ac6a0d88654b", "generation_seed": 20260627, "generator_type": "rebalance_experiment", "operator_dependencies": ["NEG"], "parent_factor_id": "fp_low_vol_011", "tokens": ["NEG", "RET_STD20"]}

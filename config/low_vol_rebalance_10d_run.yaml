@@ -1,0 +1,110 @@
+backtest:
+  initial_cash: 1000000
+  one_way_cost_bps: 20
+  rebalance_frequency: 10
+  top_n: 20
+  unknown_tradability_policy: block
+candidate_source: research_intel/library/low_vol_rebalance_10d_pipeline_candidates.jsonl
+checkpoint:
+  resume_from_checkpoint: true
+correlation:
+  max_correlation_rows: 2000
+  max_factors_for_correlation: 30
+  output_correlation_threshold: 0.95
+data:
+  max_allowed_research_end: '20260626'
+  raw_sqlite_path: stock-data/a_stock_selector.sqlite3
+  research_end: '20240628'
+  research_start: '20240101'
+  split:
+    development:
+    - '20240101'
+    - '20240329'
+    selection:
+    - '20240401'
+    - '20240531'
+    stability:
+    - '20240603'
+    - '20240628'
+  sqlite_path: stock-data/ashare_research.sqlite3
+fast_screen:
+  forward_return_horizon: 5
+  thresholds:
+    min_abs_rank_ic_mean: 0.001
+    min_coverage: 0.3
+    min_cross_sectional_dispersion: 1.0e-06
+    min_valid_rows: 20
+features:
+  allowed:
+  - RET1
+  - RET5
+  - VOL_RATIO20
+  - VOLUME_WEIGHTED_RET
+  - TREND60
+  - RET20
+  - RET60
+  - RET120
+  - RET_STD20
+  - RET_STD60
+  - DOWNSIDE_RET_STD20
+  - DOWNSIDE_RET_STD60
+  - AMOUNT_MA20
+  - AMOUNT_MA60
+  - TREND20
+  - TREND120
+formula_limits:
+  canonicalization: required
+  division_safety: required
+  max_prefix_tokens: 8
+  max_tree_depth: 2
+full_backtest:
+  limit: 1
+  save_detail_policy: summary_only
+generation:
+  candidate_count: 1
+  modes:
+  - seed_single_factor
+  seed: 20260627
+operators:
+  allowed:
+  - ADD
+  - SUB
+  - MUL
+  - DIV
+  - NEG
+  - ABS
+  - SIGN
+  - DELTA5
+  - DECAY_LINEAR20
+  - ZSCORE20
+output:
+  registry_dir: runs/factor_registry_v2
+  runs_dir: runs
+portfolio:
+  construction: top_n_long_only_equal_weight
+  holding_period: fixed_rebalance_frequency
+rating:
+  grade_a_max_drawdown: 0.35
+  grade_a_min_abs_ic: 0.03
+  grade_b_min_abs_ic: 0.015
+  min_positive_period_ratio: 0.45
+robustness:
+  optional_checks:
+  - industry_group
+  - size_group
+  - market_environment
+  required_checks:
+  - half_year_segment
+  - rolling_window
+  - cost_sensitivity
+  - holding_period_sensitivity
+run:
+  name: low_vol_rebalance_10d
+universe:
+  type: csi800_asof
+workers:
+  batch_size: 50
+  checkpoint_every_n: 50
+  failed_task_retry_limit: 0
+  max_memory_gb: 8
+  max_workers: 1

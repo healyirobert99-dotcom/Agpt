@@ -1,0 +1,21 @@
+# forward_observation_low_vol_5d.yaml
+# Low-vol primary candidate forward observation configuration.
+# OBSERVATION ONLY. No trading, no orders, no broker.
+
+sqlite_path: stock-data/ashare_research.sqlite3
+
+trading_allowed: false
+order_generation_allowed: false
+broker_connection_allowed: false
+
+candidate:
+  candidate_id: primary_low_vol_5d
+  formula: NEG(RET_STD20)
+  rebalance_frequency: 5
+  stock_pool: CSI800_asof
+  top_n: 20
+  weighting: equal_weight
+
+output:
+  json_dir: research_intel/forward_observation/low_vol_5d
+  md_dir: research_intel/forward_observation/low_vol_5d
