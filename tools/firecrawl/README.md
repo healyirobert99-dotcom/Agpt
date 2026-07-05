@@ -12,7 +12,8 @@ Current host status:
 Set the API key only in the current shell when live collection is approved:
 
 ```powershell
-$env:FIRECRAWL_API_KEY = "set locally, do not write into files"
+# Set the Firecrawl API key locally for the current shell only.
+# Do not write the key into files or commit it to Git.
 ```
 
 Dry-run:

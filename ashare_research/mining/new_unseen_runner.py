@@ -63,12 +63,10 @@ def atomic_write_json(path: Path, payload: Any) -> None:
     """Write JSON atomically: tmp → fsync → rename."""
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str), encoding="utf-8")
-    tmp_fd = os.open(tmp, os.O_RDONLY)
-    try:
-        os.fsync(tmp_fd)
-    finally:
-        os.close(tmp_fd)
+    with tmp.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, sort_keys=True, default=str)
+        fh.flush()
+        os.fsync(fh.fileno())
     os.replace(tmp, path)
 
 
@@ -268,8 +266,6 @@ class CheckpointedRun:
     # ---- Internal ----
 
     def _update_heartbeat(self, **updates: Any) -> None:
-        import resource, sys
-
         self.heartbeat.last_progress_timestamp = _now()
         self.heartbeat.elapsed_seconds = time.time() - (
             self.heartbeat.elapsed_seconds or time.time()
@@ -277,6 +273,9 @@ class CheckpointedRun:
         for k, v in updates.items():
             setattr(self.heartbeat, k, v)
         try:
+            import resource
+            import sys
+
             rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             if sys.platform == "darwin":
                 self.heartbeat.resident_memory_mb = round(rss / 1024 / 1024, 2)
