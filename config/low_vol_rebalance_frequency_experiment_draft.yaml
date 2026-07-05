@@ -1,0 +1,52 @@
+# low_vol_rebalance_frequency_experiment_draft.yaml
+# ================================================================
+# 低波动操作层最小改造实验 — 调仓频率对比
+# 状态：待审批草案，尚未批准执行
+# ================================================================
+
+status: draft_not_approved
+run_enabled: false
+backtest_enabled: false
+search_enabled: false
+formula_generation_enabled: false
+forward_data_access_allowed: false
+
+# 实验说明：
+# 固定因子 NEG(RET_STD20)，比较 5d / 10d / 20d 三种调仓频率
+# 20d = 公开策略 baseline；5d/10d = AlphaGPT 改造候选
+
+experiment:
+  name: "low_vol_rebalance_frequency"
+  fixed_factor: "NEG(RET_STD20)"
+  comparison_variable: "rebalance_frequency"
+
+  baseline:
+    rebalance_frequency: 20
+    label: "月度调仓 (公开策略 baseline)"
+    source: "B1_low_vol_defensive baseline reconstruction"
+
+  candidates:
+    - rebalance_frequency: 5
+      label: "周度调仓 (AlphaGPT 改造 A)"
+      note: "阶段 A 已有结果"
+    - rebalance_frequency: 10
+      label: "双周调仓 (AlphaGPT 改造 B)"
+      note: "中间确认点，待运行"
+
+  win_criteria:
+    - "收益高于 20d baseline (+2.68%)"
+    - "Sharpe 高于 20d baseline (0.614)"
+    - "最大回撤不超过 baseline 的 1.5 倍"
+    - "selection/stability 结果不冲突"
+
+scope_restrictions:
+  factor_frozen: true
+  top_n_frozen: true
+  position_sizing_frozen: true
+  screening_unchanged: true
+  rating_unchanged: true
+  no_momentum_or_reversal: true
+  no_new_features: true
+  no_new_operators: true
+  no_external_data: true
+  no_forward_data: true
