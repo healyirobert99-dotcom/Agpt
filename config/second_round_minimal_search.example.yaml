@@ -1,0 +1,97 @@
+# second_round_minimal_search.example.yaml
+# ----------------------------------------------------
+# 状态：待审批草案，尚未批准执行
+# 本文件只表达待审批草案，不是已批准执行配置。
+# 任何将 status 改为 approved、将 run_enabled 改为 true 的行为，
+# 都需要用户明确批准后才能执行。
+# ----------------------------------------------------
+
+status: draft_not_approved
+
+# 执行控制：全部禁用
+run_enabled: false
+formula_generation_enabled: false
+backtest_enabled: false
+search_enabled: false
+
+# 数据与操作边界：全部禁止
+forward_data_access_allowed: false
+external_data_allowed: false
+operator_extension_allowed: false
+
+# 研究口径禁止变更
+threshold_change_allowed: false
+rating_rule_change_allowed: false
+
+# 第二轮最小搜索来源
+allowed_seed_manifest: research_intel/library/second_batch_seed_factor_manifest.jsonl
+
+# 搜索范围：仅允许已冻结种子因子的最小可计算表达
+allowed_scope:
+  - seed_single_factor
+  - seed_pairwise_economic_combination
+  - same_family_narrow_derivation
+
+# 已批准基础特征（只读，不用于修改原配置）
+# 当前 system 实际使用 BASE_FEATURES 中的全集，
+# 此处仅记录门禁检查基准。
+allowed_features:
+  original:
+    - RET1
+    - RET5
+    - VOL_RATIO20
+    - VOLUME_WEIGHTED_RET
+    - TREND60
+  second_batch_approved:
+    - RET20
+    - RET60
+    - RET120
+    - RET_STD20
+    - RET_STD60
+    - DOWNSIDE_RET_STD20
+    - DOWNSIDE_RET_STD60
+    - AMOUNT_MA20
+    - AMOUNT_MA60
+    - TREND20
+    - TREND120
+
+# 已批准算子（只读，不用于修改原配置）
+allowed_operators:
+  - ADD
+  - SUB
+  - MUL
+  - DIV
+  - NEG
+  - ABS
+  - SIGN
+  - DELTA5
+  - DECAY_LINEAR20
+  - ZSCORE20
+
+# 研究口径锁定（只读基准，不修改原配置）
+locked_thresholds:
+  screening:
+    min_valid_rows: 20
+    min_coverage: 0.30
+    min_abs_rank_ic_mean: 0.001
+    min_cross_sectional_dispersion: 0.000001
+  correlation:
+    output_correlation_threshold: 0.95
+    max_correlation_rows: 2000
+  rating:
+    min_positive_period_ratio: 0.45
+    grade_a_min_abs_ic: 0.03
+    grade_a_max_drawdown: 0.35
+    grade_b_min_abs_ic: 0.015
+  time_split:
+    research_end: "20260626"
+  forward_data_cutoff: "20260626"
+  robustness:
+    required_checks:
+      - half_year_segment
+      - rolling_window
+      - cost_sensitivity
+      - holding_period_sensitivity
+
+# 操作策略参考库（只读，不进入因子验证主流程）
+operation_strategy_reference: research_intel/library/operation_strategy_reference_manifest.jsonl
