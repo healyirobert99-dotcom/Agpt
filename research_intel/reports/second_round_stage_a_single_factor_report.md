@@ -4,92 +4,134 @@
 
 | 项目 | 值 |
 | ---- | --- |
-| run_id | second_round_stage_a_20260705_142800（配置就绪，因数据库缺失未实际执行） |
-| commit SHA | f7adb0a80bef6409a04da145bf2a2a569ed98932 |
-| 使用的种子因子 | 7 个（全部来自 second_batch_seed_factor_manifest.jsonl） |
-| 是否只做单因子 | 是 |
+| run_id | factor_research_v2_20260705_145716 |
+| commit SHA | 2ea176cf6d9a826099679cda971a01bb0d57bfec |
+| 运行时间 | 247.8 秒（4分8秒） |
+| 数据库是否存在 | ✅ stock-data/ashare_research.sqlite3（6.3 GB） |
+| 是否只运行 7 个固定候选 | 是 |
+| 是否启动 B/C | 否 |
 | 是否使用库外因子 | 否 |
-| 是否新增特征 | 否（11 个特征已在代码中实现，本次未新增） |
-| 是否新增算子 | 否 |
+| 是否新增特征或算子 | 否 |
+| 是否修改筛选/评级/回测逻辑 | 否 |
 | 是否访问 forward data | 否 |
-| 是否修改筛选/评级标准 | 否 |
 
-## 2. 执行状态
+## 2. 逐因子结果
 
-| 项目 | 状态 | 详情 |
-| ---- | ---- | ---- |
-| readiness 检查 | ✅ 通过 | 门禁通过，代码就绪 |
-| 固定候选清单 | ✅ 已生成 | 7 个候选，全部为 seed_single_factor |
-| 配置加载 | ✅ 通过 | config/second_round_stage_a_run.yaml 加载成功 |
-| **pipeline 执行** | **❌ 阻塞** | **stock-data/ashare_research.sqlite3 不存在** |
+| # | seed_factor_id | 名称 | 公式 | fast_screen | IC | Phase 2 收益 | Sharpe | 稳健性 | 评级 | 状态 |
+|---|---------------|------|------|-------------|-----|------------|--------|------|------|------|
+| 1 | fp_momentum_mid_009 | 中期动量 | ZSCORE20(RET60) | ❌ rejected | -0.1206 | — | — | — | Rejected | 覆盖率不足 |
+| 2 | fp_reversal_short_010 | 短期反转 | NEG(RET5) | ✅ passed | +0.0364 | -20.28% | -1.313 | ❌ rejected | Rejected | 回测为负 |
+| 3 | fp_low_vol_011 | 低波动 | NEG(RET_STD20) | ✅ passed | +0.0247 | +3.68% | +0.771 | ✅ passed | **B** | ✅ shortlisted |
+| 4 | fp_downside_vol_012 | 下行波动 | NEG(DOWNSIDE_RET_STD20) | ✅ passed | -0.0045 | +5.73% | +1.173 | ✅ passed | **C** | ✅ shortlisted |
+| 5 | fp_amount_liquidity_014 | 流动性 | ZSCORE20(AMOUNT_MA20) | ✅ passed | -0.0579 | -21.80% | -1.964 | ❌ rejected | Rejected | 回测为负 |
+| 6 | fp_price_volume_interaction_018 | 量价配合 | MUL(RET5,VOLUME_WEIGHTED_RET) | ✅ passed | -0.0175 | -17.09% | -1.223 | ❌ rejected | Rejected | 回测为负 |
+| 7 | fp_multi_frequency_trend_019 | 多频趋势 | ADD(TREND20,TREND60) | ✅ passed | -0.0572 | -11.39% | -1.440 | ❌ rejected | Rejected | 回测为负 |
 
-## 3. 固定候选清单
+## 3. 阶段统计
 
-| # | seed_factor_id | 候选公式 | 特征依赖 | 算子依赖 | 可执行性 |
-|---|---------------|---------|---------|---------|---------|
-| 1 | fp_momentum_mid_009 | ZSCORE20(RET60) | RET60 | ZSCORE20 | 需配置扩展 |
-| 2 | fp_reversal_short_010 | NEG(RET5) | RET5 | NEG | ✅ 直接可执行 |
-| 3 | fp_low_vol_011 | NEG(RET_STD20) | RET_STD20 | NEG | 需配置扩展 |
-| 4 | fp_downside_vol_012 | NEG(DOWNSIDE_RET_STD20) | DOWNSIDE_RET_STD20 | NEG | 需配置扩展 |
-| 5 | fp_amount_liquidity_014 | ZSCORE20(AMOUNT_MA20) | AMOUNT_MA20 | ZSCORE20 | 需配置扩展 |
-| 6 | fp_price_volume_interaction_018 | MUL(RET5,VOLUME_WEIGHTED_RET) | RET5, VOLUME_WEIGHTED_RET | MUL | ✅ 直接可执行 |
-| 7 | fp_multi_frequency_trend_019 | ADD(TREND20,TREND60) | TREND20, TREND60 | ADD | 需配置扩展 |
-
-## 4. 分段评估结果
-
-因数据库缺失，以下为预期结果（基于 readiness 分析），非实际运行结果：
-
-| 阶段 | 输入 | 预期 | 说明 |
+| 阶段 | 输入 | 通过 | 说明 |
 | ---- | ---- | ---- | ---- |
-| development | 7 | 待运行 | development: 20240101-20240329 |
-| selection | 待定 | 待运行 | selection: 20240401-20240531 |
-| stability | 待定 | 待运行 | stability: 20240603-20240628 |
+| fast_screen (development) | 7 | 6 | fp_momentum_mid_009 覆盖率不达标（0.281 < 0.30） |
+| 相关性去重 | 6 | 6 | 无重复 |
+| Phase 2 回测 | 6 | 6 | 全部可执行 |
+| 稳健性 | 6 | 2 | 仅 fp_low_vol_011 和 fp_downside_vol_012 通过 |
 
-## 5. 评级分布
+## 4. 评级分布
 
-| 评级 | 数量 | 说明 |
+| 评级 | 数量 | 因子 |
 | ---- | ---- | ---- |
-| grade_a_count | n/a | 因数据库缺失未运行 |
-| grade_b_count | n/a | 同上 |
-| grade_c_count | n/a | 同上 |
-| rejected_count | n/a | 同上 |
-| final_shortlist_count | 0 | 同上（未运行，无法产生任何结果） |
-| recommended_factors | [] | 同上 |
+| **A** | 0 | — |
+| **B** | 1 | fp_low_vol_011 — NEG(RET_STD20) |
+| **C** | 1 | fp_downside_vol_012 — NEG(DOWNSIDE_RET_STD20) |
+| **Rejected** | 4 | fp_momentum_mid_009, fp_reversal_short_010, fp_amount_liquidity_014, fp_price_volume_interaction_018, fp_multi_frequency_trend_019 |
+| **fast_screen 未通过** | 1 | fp_momentum_mid_009 |
 
-## 6. 阻塞原因
+**final_shortlist_count: 2**
 
-`stock-data/ashare_research.sqlite3` 文件不在当前机器上。这是 AlphaGPT v2 pipeline 的必需数据库，包含本地日线价量数据。没有此文件，`LocalSQLiteProvider` 无法连接，整个 pipeline 无法初始化。
+## 5. recommended_factors
 
-## 7. 需要用户提供的依赖
+### B 级：fp_low_vol_011 — NEG(RET_STD20)
 
-| 文件 | 说明 | 必需 |
+| 指标 | 值 |
+| ---- | --- |
+| rank_ic_mean | +0.0247 |
+| 回测总收益 | +3.68% |
+| Sharpe | 0.771 |
+| 最大回撤 | -5.01% |
+| 覆盖率 | 78.6% |
+| 正周期比率 | 55.4% |
+
+### C 级：fp_downside_vol_012 — NEG(DOWNSIDE_RET_STD20)
+
+| 指标 | 值 |
+| ---- | --- |
+| rank_ic_mean | -0.0045 |
+| 回测总收益 | +5.73% |
+| Sharpe | 1.173 |
+| 最大回撤 | -7.29% |
+| 覆盖率 | 78.6% |
+| 正周期比率 | 54.3% |
+
+**注意：** fp_downside_vol_012 虽然回测收益和 Sharpe 均优于低波动因子，但 IC 极弱（-0.0045），评级被限制在 C。
+
+## 6. 失败原因分布
+
+| 原因 | 数量 | 因子 |
 | ---- | ---- | ---- |
-| stock-data/ashare_research.sqlite3 | 研究用 SQLite 数据库（日线价量） | 是 |
-| stock-data/a_stock_selector.sqlite3 | 原始股票筛选数据库 | 是（备选） |
+| coverage < 0.30 | 1 | fp_momentum_mid_009 |
+| 回测负收益 | 4 | fp_reversal_short_010, fp_amount_liquidity_014, fp_price_volume_interaction_018, fp_multi_frequency_trend_019 |
 
-## 8. 阶段 B/C 准入
+## 7. 关键观察
 
-当前不允许进入阶段 B/C（阶段 A 未完成）。
+### 7.1 波动率类因子表现最佳
+
+两个通过稳健性检验的因子均为波动率/风险类：
+- 低波动（B）：正 IC + 正回测收益
+- 下行波动（C）：弱 IC 但正回测收益
+
+### 7.2 反转因子 IC 为正但回测为负
+
+NEG(RET5) 的 IC 为 +0.0364（合理级别），但 Phase 2 回测收益 -20.28%。可能原因：
+- 回测覆盖全时段（development + selection），development 期间信号有效但 selection 期间反转失效
+- 方向一致性：Phase 2 总是做多高因子值股票（即买入超跌股），但样本外可能反转不成立
+
+### 7.3 量价配合同样问题
+
+MUL(RET5, VOLUME_WEIGHTED_RET) IC 为负（-0.0175），做多高因子值 = 做多高收益×高量价配合股，但回测为负。可能该组合在样本外表现与样本内相反。
+
+### 7.4 动量类全面失败
+
+中期动量（ZSCORE20(RET60)）覆盖率不足；多频趋势（ADD(TREND20,TREND60)）IC 为负且回测为负。动量类因子在此 6 个月窗口内无有效性。
+
+## 8. 阶段 B 准入
+
+| 条件 | 状态 |
+| ---- | ---- |
+| 存在通过 selection 的因子 | ✅ 2 个（fp_low_vol_011, fp_downside_vol_012） |
+| 存在正 IC 因子 | ✅ fp_low_vol_011 (IC +0.0247) |
+| 用户批准阶段 B | ⚠️ 待审批 |
+
+可用的阶段 B 组合方向（两因子属于波动率和风险类别）：
+- B4 下行波动约束：fp_downside_vol_012 + fp_low_vol_011 ✅
+
+其他 3 个组合方向的种子因子均被淘汰，无法执行。
 
 ## 9. 禁止事项核查
 
-- new_formula_generated: false（候选来自固定清单，非随机生成）
-- search_started: false
-- backtest_run: false
+- new_formula_generated: false
+- random_search: false
+- stage_b_started: false
+- stage_c_started: false
 - fast_screen_modified: false
 - robustness_modified: false
 - pipeline_modified: false
 - threshold_modified: false
 - rating_rule_modified: false
-- correlation_threshold_modified: false
-- time_split_modified: false
-- new_operator_added: false
-- external_data_added: false
 - forward_data_accessed: false
-- stage_b_started: false
-- stage_c_started: false
+- external_data_added: false
+- new_operator_added: false
 - trading_advice_generated: false
 
 ## 10. 最终结论
 
-本阶段完成第二轮阶段 A：7 个种子因子单因子检查的准备工作（readiness 通过、固定候选清单已生成、配置就绪），但因本地数据库缺失无法完成实际 pipeline 运行。结果仅为历史研究结果，尚未经过未来前向验证，不得用于交易。
+本阶段完成第二轮阶段 A：7 个种子因子单因子历史检查。结果仅为历史研究结果，尚未经过未来前向验证，不得用于交易。
